@@ -70,6 +70,7 @@ class AppDialog(QtGui.QWidget):
         self._version_template = self._app.get_template("sg_version_name_template")
         self._height = self._app.get_setting("height")
         self._width = self._app.get_setting("width")
+        self._audio = self._app.get_setting("audio")
 
 
         # Parse templates
@@ -130,6 +131,7 @@ class AppDialog(QtGui.QWidget):
         endFrame = Application.GetValue("PlayControl.Out")
         width = self._width
         height = self._height
+        audio = self._audio
 
         # Set the codec with pre-encoded values.
         # Photo-JPEG has the framerate in its codec settings, meaning we need different values
@@ -156,6 +158,7 @@ class AppDialog(QtGui.QWidget):
         Application.SetValue("ViewportCapture.End",endFrame, "")
         Application.SetValue("ViewportCapture.ImageWidth", width, "")
         Application.SetValue("ViewportCapture.ImageHeight", height, "")
+        Application.SetValue("ViewportCapture.CaptureAudio", True, "")
 
         viewport = self.ui.viewportCombo.currentIndex() + 1
 
@@ -187,21 +190,13 @@ class AppDialog(QtGui.QWidget):
         }
         
         entity = self._app.shotgun.create("Version", data)
-        """
-        # and thumbnail
-        if thumb:
-            self.shotgun.upload_thumbnail("Version", entity["id"], thumb)
-        # and filmstrip
-        if filmstrip:
-            self.shotgun.upload_filmstrip_thumbnail("Version", entity["id"], filmstrip)
-        """
+       
         # execute post hook
         for h in self._app.get_setting("post_hooks", []):
             self._app.execute_hook_by_name(h, mov_path=mov_path, version_id=entity["id"], comments=message)
         
         # status message!
         sg_url = "%s/detail/Version/%s" % (self._app.shotgun.base_url, entity["id"]) 
-        #Application.cmds.confirmDialog()("Your submission was successfully sent to review.")
         self._app.engine.execute_in_main_thread(QtGui.QMessageBox.information, None, "Send Capture to Shotgun", "Your Submission was successfully sent to review.")
         self.close()
     def _exit_app(self):

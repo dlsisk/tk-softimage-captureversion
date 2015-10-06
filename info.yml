@@ -14,12 +14,17 @@
 configuration:
     width:
         type: int
+        default_value: 960
         description: The quicktime resolution width
 
     height:
         type: int
+        default_value: 540
         description: The quicktime resolution height
-        
+    audio:
+        type: bool
+        default_value: true
+        description: Record quicktime audio track
     movie_template:
         type: template
         fields: context, iteration, [name], [version]
