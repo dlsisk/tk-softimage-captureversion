@@ -117,6 +117,8 @@ class AppDialog(QtGui.QWidget):
         self.ui.context.setText("Current Context: %s" % self._app.context)
         self.ui.filenameLabel.setText("File Name: %s" % mov_path)
         self.ui.versionName.setText("Version Name: %s" % sg_version_name)
+        self.ui.widthEdit.setValue(self._width)
+        self.ui.heightEdit.setValue(self._height)
         self.ui.startButton.clicked.connect(self._start_capture)
         self.ui.cancelButton.clicked.connect(self._exit_app)
         
@@ -129,8 +131,8 @@ class AppDialog(QtGui.QWidget):
         fps = Application.GetValue("PlayControl.Rate")
         startFrame = Application.GetValue("PlayControl.In")
         endFrame = Application.GetValue("PlayControl.Out")
-        width = self._width
-        height = self._height
+        width = self.ui.widthEdit.value()
+        height = self.ui.heightEdit.value()
         audio = self._audio
 
         # Set the codec with pre-encoded values.
