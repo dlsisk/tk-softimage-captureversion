@@ -41,12 +41,12 @@ configuration:
                      
     sg_version_name_template:
         type: template
-        fields: context, [iteration], version, [name], *
+        fields: context, [iteration], [version], [name], *
         description: "Template used to populate the version name in Shotgun. You can use any field 
-                     from the current context (such as for example Shot and Sequence) and the template
-                     must include version number.  Additionally, name and iteration will be used 
-                     if they are defined. Using iteration in the version name without also including it
-                     in the file name will always return a value of 1."
+                     from the current context (such as for example Shot and Sequence).  Iteration,
+                     version, and name fields will be used if they are defined. Using iteration in
+                     the version name without also including it in the file name will always 
+                     return a value of 1."
 
     post_hooks:
         type: list
