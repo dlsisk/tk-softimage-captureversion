@@ -92,23 +92,46 @@ class AppDialog(QtGui.QWidget):
             fields["name"] = name
         if version != None:
             fields["version"] = version
-        fields["iteration"] = 1
         
-        # get all files
-        files = self._app.tank.paths_from_template(self._movie_template, fields, ["iteration"])
-        
-        # get all iteration numbers
-        iterations = [self._movie_template.get_fields(f).get("iteration") for f in files]
-        if len(iterations) == 0:
-            new_iteration = 1
+        if 'iteration' in self._movie_template.keys:
+            # get all files
+            files = self._app.tank.paths_from_template(self._movie_template, fields, ["iteration"])
+            
+            # get all iteration numbers
+            
+            # Because iteration is optional things get more complex.
+            # First we get the iterations from the files
+            fields["iteration"] = 1
+            iterations = [self._movie_template.get_fields(f).get("iteration") for f in files]
+            
+            if (len(iterations) == 0) or (iterations[0] is None):
+                new_iteration = 1
+            else:
+                new_iteration = max(iterations) + 1
+            fields["iteration"] = new_iteration
         else:
-            new_iteration = max(iterations) + 1
+            fields['iteration'] = 0
+            
+        # Then we get the iterations from the shotgun versions with names that match our template.
+        if 'iteration' in self._version_template.keys:
+            context = self._app.engine.context
+            search_filters = [ ['project','is',context.project],
+                               ['entity','is',context.entity] ]
+            sg_versions = self._app.shotgun.find( 'Version', search_filters, ['type','id', 'code'] )
+            
+            version_names = [ x['code'] for x in sg_versions if self._version_template.validate(x['code']) ]
+            iterations = [ self._version_template.get_fields(x)['iteration'] for x in version_names if self._version_template.validate(x,{'version':version}) ]
+            fields['iteration'] =  max( [fields['iteration']] + iterations ) + 1
+        else:
+            fields['iteration'] = 1
+        
+        
         
         # compute new file path
-        fields["iteration"] = new_iteration
         mov_path = self._movie_template.apply_fields(fields)
         
         # compute shotgun version name
+        
         sg_version_name = self._version_template.apply_fields(fields)
         
         self._fields = fields
@@ -198,8 +221,8 @@ class AppDialog(QtGui.QWidget):
             self._app.execute_hook_by_name(h, mov_path=mov_path, version_id=entity["id"], comments=message)
         
         # status message!
-        sg_url = "%s/detail/Version/%s" % (self._app.shotgun.base_url, entity["id"]) 
-        self._app.engine.execute_in_main_thread(QtGui.QMessageBox.information, None, "Send Capture to Shotgun", "Your Submission was successfully sent to review.")
+        # sg_url = "%s/detail/Version/%s" % (self._app.shotgun.base_url, entity["id"]) 
+        # self._app.engine.execute_in_main_thread(QtGui.QMessageBox.information, None, "Send Capture to Shotgun", "Your Submission was successfully sent to review.")
         self.close()
     def _exit_app(self):
         Application.LogMessage("Exiting CaptureVersion...")

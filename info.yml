@@ -27,7 +27,7 @@ configuration:
         description: Record quicktime audio track
     movie_template:
         type: template
-        fields: context, iteration, [name], [version]
+        fields: context, [iteration], [name], [version]
         description: The location where the output quicktime will be written to. The two fields
                      iteration and optionally name will be populated. Iteration is an integer 
                      number which will be automatically calculated based on the existing files 
@@ -35,16 +35,16 @@ configuration:
                      
     current_scene_template:
         type: template
-        fields: context, [name], [version], *
+        fields: context, [name], version, *
         description: Template that will be used to extract the name and version from the current 
-                     scene. Both name and version are optional.
+                     scene. Name is optional.
                      
     sg_version_name_template:
         type: template
-        fields: context, iteration, [version], [name], *
+        fields: context, [iteration], version, [name], *
         description: "Template used to populate the version name in Shotgun. You can use any field 
                      from the current context (such as for example Shot and Sequence) and the template
-                     must include iteration.  Additionally, name and the current version will be used 
+                     must include version number.  Additionally, name and iteration will be used 
                      if they are defined."
 
     post_hooks:
