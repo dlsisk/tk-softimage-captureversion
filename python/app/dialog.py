@@ -105,28 +105,11 @@ class AppDialog(QtGui.QWidget):
             iterations = [self._movie_template.get_fields(f).get("iteration") for f in files]
             
             if (len(iterations) == 0) or (iterations[0] is None):
-                new_iteration = 1
+                fields['iteration'] = 1
             else:
-                new_iteration = max(iterations) + 1
-            fields["iteration"] = new_iteration
-        else:
-            fields['iteration'] = 0
-            
-        # Then we get the iterations from the shotgun versions with names that match our template.
-        if 'iteration' in self._version_template.keys:
-            context = self._app.engine.context
-            search_filters = [ ['project','is',context.project],
-                               ['entity','is',context.entity] ]
-            sg_versions = self._app.shotgun.find( 'Version', search_filters, ['type','id', 'code'] )
-            
-            version_names = [ x['code'] for x in sg_versions if self._version_template.validate(x['code']) ]
-            iterations = [ self._version_template.get_fields(x)['iteration'] for x in version_names if self._version_template.validate(x,{'version':version}) ]
-            fields['iteration'] =  max( [fields['iteration']] + iterations ) + 1
+                fields['iteration'] = max(iterations) + 1
         else:
             fields['iteration'] = 1
-        
-        
-        
         # compute new file path
         mov_path = self._movie_template.apply_fields(fields)
         
